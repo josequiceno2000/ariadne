@@ -42,7 +42,7 @@ body:
             description: Tell us the expected outcome.
             placeholder: "I expected the maze to be solved visually with A*."
 
-    - type: textarea:
+    - type: textarea
         id: logs
         attributes:
             label: Relevant Logs / Screenshots
@@ -53,7 +53,7 @@ body:
                 File "main.py", line 88...
                 ```
 
-    - type: dropdown:
+    - type: dropdown
         id: platform
         attributes:
             label: What OS/Platform Are You Using?
