@@ -16,5 +16,5 @@ setup(
     author_email="josequiceno000@gmail.com",
     description="Advanced maze generation and solving visualization toolkit",
     keywords="maze, algorithms, visualization, pathfinding",
-    python_requires=">=3.10.6",
+    python_requires=">=3.10.12",
 )
