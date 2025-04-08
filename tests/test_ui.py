@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import patch, MagicMock, Mock
-from ariadne.ui.app import Window, Point, Line
+from ariadne.ui.app import Point, Line, Window, Cell
 
 
 # Testing Window
@@ -98,3 +98,86 @@ def test_window_draw_line_delegates_to_line_draw(mock_tk, mock_canvas):
     window.draw_line(mock_line, fill_color="blue")
 
     mock_line.draw.assert_called_once_with(mock_canvas_instance, "blue")
+
+# Testing Cells
+@pytest.fixture
+@patch("ariadne.ui.maze_canvas.Canvas")
+@patch("ariadne.ui.maze_canvas.Tk")
+def mock_window(mock_tk, mock_canvas):
+    window = Window(500, 500)
+    window.draw_line = Mock()
+
+    canvas_mock = window._Window__canvas
+    canvas_mock.winfo_width.return_value = 500
+    canvas_mock.winfo_height.return_value = 500
+
+    return window
+
+@pytest.mark.parametrize("x1, y1, x2, y2", [
+    (100, 100, 300, 250),
+    (250, 80, 90, 100),
+    (60, 22, 22, 65),
+    (141, 142, 25, 490),
+    (50, 32, 35, 60),
+    (250, 80, 300, 10),
+])
+def test_cell_draws_four_walls(x1, y1, x2, y2, mock_window):
+    cell = Cell(x1, y1, x2, y2, mock_window)
+    cell.draw("blue")
+
+    assert mock_window.draw_line.call_count == 4
+
+
+@pytest.mark.parametrize("x1, y1, x2, y2", [
+    (100, 100, 300, 250),
+    (250, 80, 90, 100),
+    (60, 22, 22, 65),
+    (141, 142, 25, 490),
+    (50, 32, 35, 60),
+    (250, 80, 300, 10),
+])
+def test_cell_draws_only_selected_walls(x1, y1, x2, y2, mock_window):
+    cell = Cell(x1, y1, x2, y2, mock_window)
+    cell.has_top_wall = True
+    cell.has_right_wall = False
+    cell.has_bottom_wall = True
+    cell.has_left_wall = False
+
+    cell.draw("orange")
+    assert mock_window.draw_line.call_count == 2
+
+@pytest.mark.parametrize("x1, y1, x2, y2", [
+    (50, 100, 300, 250),
+    (250, 80, 400, 100),
+    (60, 91, 22, 65),
+    (141, 142, 25, 89),
+    (50, 32, 255, 60),
+    (250, 10, 300, 10),
+])
+def test_cell_draws_with_correct_coordinates(x1, y1, x2, y2, mock_window):
+    cell = Cell(x1, y1, x2, y2, mock_window)
+    cell.draw("green")
+
+    expected_lines = [
+        ((x1, y1), (x2, y1)), # top
+        ((x2, y1), (x2, y2)), # right
+        ((x2, y2), (x1, y2)), # bottom
+        ((x1, y2), (x1, y1)), # left
+    ]
+
+    for i, ((px1,py1), (px2, py2)) in enumerate(expected_lines):
+        args = mock_window.draw_line.call_args_list[i][0]
+        line = args[0]
+        assert isinstance(line, Line)
+        assert (line.point1.x, line.point1.y) == (px1, py1)
+        assert (line.point2.x, line.point2.y) == (px2, py2)
+
+@pytest.mark.parametrize("x1, y1, x2, y2", [
+    (1000, 1000, 2050, 2050),
+    (-1000, -1000, -2050, -2050),
+    (-5, 499, -1, 501),
+])
+def test_cell_out_of_bounds_does_not_draw(x1, y1, x2, y2, mock_window):
+    cell = Cell(x1, y1, x2, y2, mock_window)
+    cell.draw("black")
+    mock_window.draw_line.assert_not_called()
