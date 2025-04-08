@@ -1,7 +1,9 @@
 import pytest
-from unittest.mock import patch, MagicMock
-from ariadne.ui.app import Window
+from unittest.mock import patch, MagicMock, Mock
+from ariadne.ui.app import Window, Point, Line
 
+
+# Testing Window
 @patch("ariadne.ui.maze_canvas.Tk")
 @patch("ariadne.ui.maze_canvas.Canvas")
 def test_window_initializes_canvas(mock_canvas, mock_tk):
@@ -49,3 +51,50 @@ def test_window_different_sizes(mock_tk, mock_canvas):
     for width, height in [(100, 200), (300, 500), (1200, 800), (640, 300)]:
         Window(width, height)
         mock_canvas.assert_called_with(mock_tk.return_value, width=width, height=height)
+
+# Testing Points and Lines
+@pytest.mark.parametrize("x, y", [
+    (0, 20),
+    (90, 180),
+    (240, 322),
+    (15, 15),
+    (300, 460)
+]) 
+def test_point_initialization(x, y):
+    p = Point(x, y) 
+    assert p.x == x
+    assert p.y == y
+
+
+@pytest.mark.parametrize("x1, y1, x2, y2", [
+    (19, 24, 200, 300),
+    (190, 240, 20, 30),
+    (70, 400, 400, 70),
+    (20, 21, 301, 250),
+    (5, 190, 43, 50),
+])
+def test_line_draw_calls_create_line_correctly(x1, y1, x2, y2):
+    canvas = Mock()
+    p1 = Point(x1, y1)
+    p2 = Point(x2, y2)
+    line = Line(p1, p2)
+
+    line.draw(canvas, fill_color="red")
+
+    canvas.create_line.assert_called_once_with(
+        x1, y1, x2, y2,
+        fill = "red",
+        width = 2
+    )
+
+@patch("ariadne.ui.maze_canvas.Canvas")
+@patch("ariadne.ui.maze_canvas.Tk")
+def test_window_draw_line_delegates_to_line_draw(mock_tk, mock_canvas):
+    mock_canvas_instance = mock_canvas.return_value
+
+    mock_line = MagicMock()
+
+    window = Window(800, 600)
+    window.draw_line(mock_line, fill_color="blue")
+
+    mock_line.draw.assert_called_once_with(mock_canvas_instance, "blue")
