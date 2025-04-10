@@ -1,4 +1,5 @@
-from .maze_canvas import Point, Line, Window, Cell
+from .maze_canvas import Window
+from ariadne.core.cell import Point, Line, Cell
 
 def main():
     win = Window(800, 600)
