@@ -1,4 +1,4 @@
-from ariadne.core.cell import Point, Line, Cell
+from ariadne.core.cell import Cell
 from ariadne.ui.maze_canvas import Window
 import time
 
@@ -19,35 +19,28 @@ class Maze:
         self.num_cols = num_cols
         self.cell_size_x = cell_size_x
         self.cell_size_y = cell_size_y
+        self._cells = []
         self._win = win
         self._create_cells()
+        self.draw()
         
     
     def _create_cells(self):
-        self._cells = []
-        col_num = 1
-        for i in range(self.num_cols):
+        for col in range(self.num_cols):
             cell_column = []
-            row_num = 1
-            for j in range (self.num_rows):
-                next_cell = Cell(
-                    self.x1 + (self.cell_size_x * (col_num - 1)), 
-                    self.y1 + (self.cell_size_y * (row_num - 1)), 
-                    self.x1 + (self.cell_size_x * col_num), 
-                    self.y1 + (self.cell_size_y * row_num), 
-                    self._win)
-                cell_column.append(next_cell)
-                row_num += 1
+            for row in range (self.num_rows):
+                x1 = self.x1 + col * self.cell_size_x
+                y1 = self.y1 + row * self.cell_size_y
+                x2 = x1 + self.cell_size_x
+                y2 = y1 + self.cell_size_y
+                cell_column.append(Cell(x1, y1, x2, y2, self._win))
             self._cells.append(cell_column)
-            col_num += 1
         
+    def draw(self):
         for cell_column in self._cells:
             for cell in cell_column:
-                self._draw_cell(cell)
-    
-    def _draw_cell(self, cell: Cell):
-        cell.draw()
-        self._animate()
+                cell.draw()
+                self._animate()
     
     def _animate(self):
         self._win.redraw()

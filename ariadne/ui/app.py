@@ -5,6 +5,6 @@ from ariadne.core.maze import Maze
 def main():
     win = Window(800, 600)
     
-    maze = Maze(100, 100, 10, 20, 40, 20, win)
+    maze = Maze(100, 50, 10, 10, 20, 20, win)
 
     win.wait_for_close()
