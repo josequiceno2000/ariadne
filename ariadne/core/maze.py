@@ -22,7 +22,7 @@ class Maze:
         self._cells = []
         self._win = win
         self._create_cells()
-        self.draw()
+        self._draw()
         
     
     def _create_cells(self):
@@ -36,7 +36,7 @@ class Maze:
                 cell_column.append(Cell(x1, y1, x2, y2, self._win))
             self._cells.append(cell_column)
         
-    def draw(self):
+    def _draw(self):
         for cell_column in self._cells:
             for cell in cell_column:
                 cell.draw()
