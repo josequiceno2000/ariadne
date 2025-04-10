@@ -59,6 +59,7 @@ class Cell:
         self._top_right_point = Point(x2, y1)
         self._bottom_right_point = Point(x2, y2)
         self._bottom_left_point = Point(x1, y2)
+        self._center = Point(((x1 + x2) / 2), ((y1 + y2) / 2))
         self._win = window
     
     def draw(self, fill_color: str="black"):
@@ -72,7 +73,7 @@ class Cell:
             self._bottom_right_point,
             self._bottom_left_point
         ]:
-            if not (0 <= point.x <= canvas_width and 0 <= point.y <= canvas_height):
+            if not (0 <= point.x <= canvas_width) and (0 <= point.y <= canvas_height):
                 return
 
         if self.has_top_wall:
@@ -87,4 +88,9 @@ class Cell:
         if self.has_left_wall:
             left_wall = Line(self._bottom_left_point, self._top_left_point)
             self._win.draw_line(left_wall, fill_color)
+    
+    def draw_move(self, to_cell, undo: bool=False):
+        center_line_color = {0: "red", 1: "gray"}[undo]
+        center_line = Line(self._center, to_cell._center)
+        self._win.draw_line(center_line, center_line_color)
 
