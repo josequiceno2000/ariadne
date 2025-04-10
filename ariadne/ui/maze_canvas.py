@@ -27,6 +27,7 @@ class Window:
         self.__root.title("Ariadne")
         self.__canvas = Canvas(self.__root, width=width, height=height)
         self.__canvas.pack(fill=BOTH, expand=1)
+        self.__root.update_idletasks()
         self.__running = False
         self.__root.protocol("WM_DELETE_WINDOW", self.close)
     
@@ -64,6 +65,9 @@ class Cell:
     
     def draw(self, fill_color: str="black"):
         """Draws the cell if it is within the bounds of the canvas"""
+        if self._win is None:
+            return
+
         canvas_width = self._win._Window__canvas.winfo_width()
         canvas_height = self._win._Window__canvas.winfo_height()
 
@@ -73,7 +77,7 @@ class Cell:
             self._bottom_right_point,
             self._bottom_left_point
         ]:
-            if not (0 <= point.x <= canvas_width) and (0 <= point.y <= canvas_height):
+            if not (0 <= point.x <= canvas_width and 0 <= point.y <= canvas_height):
                 return
 
         if self.has_top_wall:
@@ -90,6 +94,7 @@ class Cell:
             self._win.draw_line(left_wall, fill_color)
     
     def draw_move(self, to_cell, undo: bool=False):
+        """Draws a line from the center of one cell to another"""
         center_line_color = {0: "red", 1: "gray"}[undo]
         center_line = Line(self._center, to_cell._center)
         self._win.draw_line(center_line, center_line_color)

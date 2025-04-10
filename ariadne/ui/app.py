@@ -1,14 +1,30 @@
 from .maze_canvas import Point, Line, Window, Cell
 
 def main():
-    window = Window(800, 600)
+    win = Window(800, 600)
     
-    cell = Cell(50, 50, 300, 400, window)
-    cell.draw("red")
+    c1 = Cell(50, 50, 100, 100, win)
+    c1.has_right_wall = False
+    c1.draw()
 
-    cell2 = Cell(500, 40, 250, 300, window)
-    cell2.draw("blue")
+    c2 = Cell(100, 50, 150, 100, win)
+    c2.has_left_wall = False
+    c2.has_bottom_wall = False
+    c2.draw()
 
-    cell.draw_move(cell2, True)
+    c1.draw_move(c2)
 
-    window.wait_for_close()
+    c3 = Cell(100, 100, 150, 150, win)
+    c3.has_top_wall = False
+    c3.has_right_wall = False
+    c3.draw()
+
+    c2.draw_move(c3)
+
+    c4 = Cell(150, 100, 200, 150, win)
+    c4.has_left_wall = False
+    c4.draw()
+
+    c3.draw_move(c4, True)
+
+    win.wait_for_close()

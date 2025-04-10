@@ -181,3 +181,40 @@ def test_cell_out_of_bounds_does_not_draw(x1, y1, x2, y2, mock_window):
     cell = Cell(x1, y1, x2, y2, mock_window)
     cell.draw("black")
     mock_window.draw_line.assert_not_called()
+
+
+@pytest.mark.parametrize("start_coords, end_coords, expected_color", [
+    ((0, 0, 30, 30), (200, 200, 40, 60), "red"),
+    ((500, 60, 25, 20), (120, 350, 60, 20), "gray"),
+])
+def test_draw_move_draws_center_line(mock_window, start_coords, end_coords, expected_color):
+    x1a, y1a, x2a, y2a = start_coords
+    x1b, y1b, x2b, y2b = end_coords
+
+    cell_a = Cell(x1a, y1a, x2a, y2a, mock_window)
+    cell_b = Cell(x1b, y1b, x2b, y2b, mock_window)
+
+    undo = (expected_color == "gray")
+    cell_a.draw_move(cell_b, undo=undo)
+
+    mock_window.draw_line.assert_called_once()
+    line_drawn, color = mock_window.draw_line.call_args[0]
+
+    assert (line_drawn.point1.x, line_drawn.point1.y) == (cell_a._center.x, cell_a._center.y)
+    assert (line_drawn.point2.x, line_drawn.point2.y) == (cell_b._center.x, cell_b._center.y)
+    assert color == expected_color
+
+def test_draw_move_bidirectional_calls_twice(mock_window):
+    cell1 = Cell(0, 0, 20, 20, mock_window)
+    cell2 = Cell(20, 0, 40, 20, mock_window)
+
+    cell1.draw_move(cell2)  # red
+    cell2.draw_move(cell1, undo=True)  # gray
+
+    assert mock_window.draw_line.call_count == 2
+
+    first_call_args = mock_window.draw_line.call_args_list[0][0]
+    second_call_args = mock_window.draw_line.call_args_list[1][0]
+
+    assert first_call_args[1] == "red"
+    assert second_call_args[1] == "gray"
